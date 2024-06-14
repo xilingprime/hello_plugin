@@ -1,0 +1,91 @@
+group 'com.xiling.hello_plugin'
+version '1.0'
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url "https://linphone.org/maven_repository"
+        }
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.3.0'
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url "https://linphone.org/maven_repository"
+        }
+    }
+}
+
+apply plugin: 'com.android.library'
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+//获取flutter的sdk路径
+def flutterRoot = localProperties.getProperty('flutter.sdk')
+if (flutterRoot == null) {
+    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+}
+
+dependencies {
+//    implementation (name: 'linphone-sdk-android-5.3.48',ext: 'aar')
+    compileOnly files("$flutterRoot/bin/cache/artifacts/engine/android-arm/flutter.jar")
+}
+
+rootProject.allprojects{
+    repositories{
+        flatDir{
+            dirs project(':hello_plugin').file('libs/')
+        }
+    }
+}
+
+android {
+    if (project.android.hasProperty("namespace")) {
+        namespace 'com.xiling.hello_plugin'
+    }
+
+    compileSdk 34
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        minSdkVersion 19
+    }
+
+    dependencies {
+        testImplementation 'junit:junit:4.13.2'
+        testImplementation 'org.mockito:mockito-core:5.0.0'
+    }
+
+    testOptions {
+        unitTests.all {
+            testLogging {
+               events "passed", "skipped", "failed", "standardOut", "standardError"
+               outputs.upToDateWhen {false}
+               showStandardStreams = true
+            }
+        }
+    }
+}
+dependencies{
+    implementation 'org.java-websocket:Java-WebSocket:1.5.2'
+//    implementation 'org.linphone:linphone-sdk-android:5.3.48'
+    implementation 'org.linphone:linphone-sdk-android:5.0+'
+}
